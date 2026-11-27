@@ -10,8 +10,8 @@
     --card-bg: #1f2128;
     --card-inner: #17181f;
     --accent-orange: #ff9f0a;
-    --accent-left: #0a84ff;   /* 왼손: 파란색 */
-    --accent-right: #30d158;  /* 오른손: 초록색 */
+    --accent-left: #0a84ff;   /* 왼쪽: 파란색 */
+    --accent-right: #30d158;  /* 오른쪽: 초록색 */
     --accent-miss: #ff453a;   /* 미스: 빨간색 */
     --text-primary: #f2f2f7;
     --text-muted: #8e8e93;
@@ -290,9 +290,8 @@
   .feedback-box {
     text-align: center;
     min-height: 20px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
-    transition: color 0.1s ease;
   }
 
   .pad-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 125px; }
@@ -308,12 +307,8 @@
     cursor: pointer;
     overflow: hidden;
     touch-action: none;
-    transition: transform 0.05s, background 0.08s;
   }
-  .touch-pad:active, .touch-pad.pad-pressed {
-    transform: scale(0.97);
-    background: #252834;
-  }
+  .touch-pad:active { transform: scale(0.97); }
   .touch-pad.left-pad { border-bottom: 4px solid var(--accent-left); }
   .touch-pad.right-pad { border-bottom: 4px solid var(--accent-right); }
   .pad-label { font-size: 24px; font-weight: 900; pointer-events: none; }
@@ -374,6 +369,68 @@
     line-height: 1.4;
     color: #f2f2f7;
     text-align: center;
+  }
+
+  /* 할인 쿠폰 박스 스타일 */
+  .coupon-box {
+    display: none;
+    background: linear-gradient(135deg, rgba(255, 159, 10, 0.16), rgba(48, 209, 88, 0.12));
+    border: 1.5px dashed var(--accent-orange);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin: 8px 0;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .coupon-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .coupon-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: #ffd700;
+  }
+  .coupon-code-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 6px 10px;
+    gap: 8px;
+  }
+  .coupon-code-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.6px;
+    user-select: all;
+    -webkit-user-select: all;
+  }
+  .btn-copy-coupon {
+    background: var(--accent-orange);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    flex-shrink: 0;
+    touch-action: manipulation;
+  }
+  .btn-copy-coupon:active {
+    transform: scale(0.96);
+  }
+  .coupon-desc {
+    font-size: 10.5px;
+    color: #d1d1d6;
+    line-height: 1.35;
   }
 
   .daw-roll-wrap { position: relative; margin: 6px 0 10px 0; }
@@ -448,6 +505,7 @@
   }
   .btn-share-card:active { transform: scale(0.98); opacity: 0.9; }
 
+  /* 갤러리 저장용 모달 */
   .save-modal-overlay {
     display: none;
     position: fixed;
@@ -503,8 +561,8 @@
 
 <div class="device-frame" id="mainDeviceFrame">
   <div class="guide-banner" id="guideBanner">
-    <span id="tipIcon">💡</span>
-    <span id="tipText">어려우면 ◀ 버튼을 눌러 속도를 0.8x로 줄여서 연습해보세요!</span>
+    <span id="tipIcon">⚠️</span>
+    <span id="tipText">무선 이어폰/키보드는 소리 지연이 있어요! (유선 이어폰 또는 스피커 권장)</span>
   </div>
 
   <div class="level-section">
@@ -548,8 +606,8 @@
       </div>
     </div>
     
-    <button class="btn-demo-card" id="demoPlayBtn" onclick="togglePatternListen()">
-      <span id="demoIcon">🎧</span> <span id="demoText">패턴 들어보기</span>
+    <button class="btn-demo-card" id="demoPlayBtn" onclick="toggleDemoPlay()">
+      <span id="demoIcon">▶</span> <span id="demoText">모범연주 듣기</span>
     </button>
   </div>
 
@@ -591,6 +649,17 @@
       🔥 대단해요! Perfect! (완벽한 마스터 그루브 포켓)
     </div>
 
+    <div class="coupon-box" id="couponBox">
+      <div class="coupon-top">
+        <span class="coupon-title" id="couponTitle">🎟️ 펑크 클래스 할인 쿠폰 발급!</span>
+      </div>
+      <div class="coupon-code-wrap">
+        <span class="coupon-code-text" id="couponCodeText">FUNK5000</span>
+        <button type="button" class="btn-copy-coupon" id="copyCouponBtn" onclick="copyRewardCoupon()">쿠폰 복사</button>
+      </div>
+      <p class="coupon-desc" id="couponDesc">아래 강의 보기 링크로 이동한 뒤, 수강 신청 시 쿠폰 코드를 입력해 할인 혜택을 받아보세요.</p>
+    </div>
+
     <div class="daw-roll-wrap">
       <div class="daw-roll" id="dawRoll">
         <div class="axis-label axis-top">▲ 빠름 (Early)</div>
@@ -606,7 +675,7 @@
       <div class="legend-item"><span class="legend-dot" style="background:var(--accent-miss)"></span> 미스(Miss) 빨강</div>
     </div>
 
-    <a class="promo-banner" href="https://www.youtube.com/@parkturtle" target="_blank">
+    <a class="promo-banner" href="https://www.pianoturtle.com/classes/321000" target="_blank">
       <div class="promo-text">
         <h4>🎹 박터틀의 펑크 & 재즈 테크닉</h4>
         <p>16비트 독립성과 칼박 그루브의 비밀 보러가기</p>
@@ -622,6 +691,7 @@
   </div>
 </div>
 
+<!-- 갤러리 저장용 모달 -->
 <div class="save-modal-overlay" id="saveModalOverlay" onclick="closeSaveModal(event)">
   <div class="save-modal-card" onclick="event.stopPropagation()">
     <h3 style="font-size:15px; font-weight:800; color:var(--accent-orange);">📸 결과 카드 생성 완료</h3>
@@ -635,10 +705,10 @@
 
 <script>
   const TIPS = [
+    { icon: "⚠️", text: "무선 이어폰/키보드는 소리 지연이 있어요! (유선 이어폰 또는 스피커 권장)" },
     { icon: "💡", text: "어려우면 ◀ 버튼을 눌러 속도를 0.8x로 줄여서 연습해보세요!" },
     { icon: "⭐", text: "A등급(싱크율 80% 이상)을 획득해야 다음 레벨이 열립니다!" },
-    { icon: "🎹", text: "마스터 건반 분할 지원 (~G2: 왼손 베이스 / G#2~: 오른손 화음 쨉)" },
-    { icon: "🚀", text: "DAW와 동시 사용 시 chrome://flags에서 WinRT MIDI를 켜보세요." }
+    { icon: "🎹", text: "마스터 건반 분할 지원 (~G2: 왼손 베이스 / G#2~: 오른손 화음 쨉)" }
   ];
   let tipIdx = 0;
 
@@ -660,7 +730,7 @@
     "Chapter 2. 16비트 루디먼트",
     "Chapter 3. 클라베 & 베이스 리듬",
     "Chapter 4. 롱노트 & 여백",
-    "Chapter 5. 싱코페이션 & 쨉",
+    "Chapter 5. 싱코페이션 & 고스트",
     "Chapter 6. 종합 마스터"
   ];
 
@@ -673,34 +743,47 @@
 
     { level: 6, title: "Lv.6 16비트 싱글", badge: "16비트", desc: "16분음표 2배속 싱글 스트로크 (RLRL...)", baseBpm: 65, pattern: "RLRLRLRLRLRLRLRL" },
     { level: 7, title: "Lv.7 16비트 더블", badge: "16비트", desc: "16분음표 더블 핑거링 탄성 훈련 (RRLL...)", baseBpm: 69, pattern: "RRLLRRLLRRLLRRLL" },
-    { level: 8, title: "Lv.8 16비트 기본 파라", badge: "16비트", desc: "16분음표 정방향 파라디들 (RLRR LRLL...)", baseBpm: 73, pattern: "RLRRLRLLRLRRLRLL" },
+    { level: 8, title: "Lv.8 16비트 파라디들", badge: "16비트", desc: "16분음표 정방향 파라디들 (RLRR LRLL...)", baseBpm: 73, pattern: "RLRRLRLLRLRRLRLL" },
     { level: 9, title: "Lv.9 16비트 리버스", badge: "16비트", desc: "16분음표 리버스 파라디들 (RRLR LLRL...)", baseBpm: 76, pattern: "RRLRLLRLRRLRLLRL" },
-    { level: 10, title: "Lv.10 16비트 인워드", badge: "16비트", desc: "16분음표 펑크 인워드 (RLLR LRRL...)", baseBpm: 80, pattern: "RLLRLRRLRLLRLRRL" },
+    { level: 10, title: "Lv.10 16비트 인워드 파라디들", badge: "16비트", desc: "16분음표 펑크 인워드 (RLLR LRRL...)", baseBpm: 80, pattern: "RLLRLRRLRLLRLRRL" },
 
-    { level: 11, title: "Lv.11 더블 드라이브", badge: "클라베", desc: "RLLR LLRL 반복으로 추진력을 만드는 드라이브 리듬", baseBpm: 75, pattern: "RLLRLLRLRLLRLLRL" },
-    { level: 12, title: "Lv.12 왼손 엇박 리드", badge: "베이스", desc: "왼손 엇박으로 시작하여 말려 들어가는 훵크 패턴", baseBpm: 78, pattern: "L-R-LRLLRLLRLLRL" },
-    { level: 13, title: "Lv.13 마디 넘김 쨉", badge: "인터락", desc: "후반부 LLR- 엇박으로 마디를 넘겨주는 인터락", baseBpm: 82, pattern: "RLLRLLRLLLR-LRLL" },
-    { level: 14, title: "Lv.14 양손 크로스", badge: "뇌 분리", desc: "인워드와 리버스가 교차하는 뇌 분리 완성 패턴", baseBpm: 86, pattern: "LRRLRLLRRLLRLLRL" },
-    { level: 15, title: "Lv.15 3-3-2 클라베", badge: "정통 클라베", desc: "R-RL 3-3-2 악센트와 16비트 쨉의 정수", baseBpm: 90, pattern: "R-RLR-RLR-LR-LR-" },
+    { level: 11, title: "Lv.11 클라베 빈 칸 채우기", badge: "클라베", desc: "RLLR LLRL 반복으로 추진력을 만드는 드라이브 리듬", baseBpm: 75, pattern: "RLLRLLRLRLLRLLRL" },
+    { level: 12, title: "Lv.12 국민 클라베 패턴", badge: "베이스", desc: "왼손 엇박으로 시작하여 말려 들어가는 펑크 패턴", baseBpm: 78, pattern: "L-R-LRLLRLLRLLRL" },
+    { level: 13, title: "Lv.13 엇박이 들어간 클라베", badge: "인터락", desc: "후반부 LLR- 엇박으로 마디를 넘겨주는 인터락", baseBpm: 82, pattern: "RLLRLLRLLLR-LRLL" },
+    { level: 14, title: "Lv.14 양 손 클라베 연습", badge: "뇌 분리", desc: "인워드와 리버스가 교차하는 뇌 분리 완성 패턴", baseBpm: 86, pattern: "LRRLRLLRRLLRLLRL" },
+    { level: 15, title: "Lv.15 고스트 노트의 활용", badge: "정통 클라베", desc: "R-RL 3-3-2 악센트와 16비트 쨉의 정수", baseBpm: 90, pattern: "R-RLR-RLR-LR-LR-" },
 
-    { level: 16, title: "Lv.16 베이스 쿵 쨉", badge: "2칸 서스테인", desc: "(LL) 롱노트 베이스 뒤에 꽂아 넣는 16분 쨉", baseBpm: 75, pattern: "(LL)L-RRLR--L-(LL)L-" },
-    { level: 17, title: "Lv.17 3칸 길게 누르기", badge: "3칸 롱노트", desc: "(LLL) 베이스와 (RRR) 오른손 화음 홀드 교차", baseBpm: 78, pattern: "(LLL)RLRL-L(RRR)LRLL" },
-    { level: 18, title: "Lv.18 엇박 버티기", badge: "오프비트 홀드", desc: "첫 2칸을 비우고 엇박에 들어가는 끈적한 롱노트", baseBpm: 82, pattern: "--(LL)LRLL(RR)LR-LR-" },
-    { level: 19, title: "Lv.19 양손 홀드", badge: "더블 홀드", desc: "여백 뒤에 터지는 왼손 롱노트와 오른손 더블 쨉", baseBpm: 86, pattern: "--(LL)-L--(LL)RRLRRL" },
-    { level: 20, title: "Lv.20 롱숏 마스터", badge: "아티큘레이션", desc: "3칸 화음 쨉과 2칸 베이스가 맞물리는 실전 펑크", baseBpm: 90, pattern: "(RRR)LR-LR-(RR)LRRL-" },
+    { level: 16, title: "Lv.16 8분음표 채우기 연습", badge: "2칸 서스테인", desc: "(LL) 롱노트 베이스 뒤에 꽂아 넣는 16분 쨉", baseBpm: 75, pattern: "(LL)L-RRLR--L-(LL)L-" },
+    { level: 17, title: "Lv.17 3칸 채우기 연습", badge: "3칸 롱노트", desc: "(LLL) 베이스와 (RRR) 오른손 화음 홀드 교차", baseBpm: 78, pattern: "(LLL)RLRL-L(RRR)LRLL" },
+    { level: 18, title: "Lv.18 첫 박을 비운 베이스", badge: "오프비트 홀드", desc: "첫 2칸을 비우고 엇박에 들어가는 끈적한 롱노트", baseBpm: 82, pattern: "--(LL)LRLL(RR)LR-LR-" },
+    { level: 19, title: "Lv.19 왼손 홀딩 연습", badge: "더블 홀드", desc: "여백 뒤에 터지는 왼손 롱노트와 오른손 더블 쨉", baseBpm: 86, pattern: "--(LL)-L--(LL)RRLRRL" },
+    { level: 20, title: "Lv.20 길이조절 마스터", badge: "아티큘레이션", desc: "3칸 화음 쨉과 2칸 베이스가 맞물리는 실전 펑크", baseBpm: 90, pattern: "(RRR)LR-LR-(RR)LRRL-" },
 
-    { level: 21, title: "Lv.21 16비트 커팅", badge: "싱코페이션", desc: "1번 박 베이스 후 엇박 쨉을 쪼개는 커팅 리듬", baseBpm: 85, pattern: "LR-R-R-R-R-R-RLR" },
+    { level: 21, title: "Lv.21 16비트 당김음 연습", badge: "싱코페이션", desc: "1번 박 베이스 후 엇박 쨉을 쪼개는 커팅 리듬", baseBpm: 85, pattern: "LR-R-R-R-R-R-RLR" },
     { level: 22, title: "Lv.22 롱노트 & 스프린트", badge: "스프린트", desc: "베이스 홀드 후 4박에서 터지는 16비트 런", baseBpm: 89, pattern: "R(LL)R-RLR-RLLRLRL" },
     { level: 23, title: "Lv.23 치고 빠지기", badge: "텐션 조절", desc: "16비트 연타와 엇박 쨉이 쉴 새 없이 교차하는 훈련", baseBpm: 93, pattern: "RLRL-R-R-RL-RLRL" },
-    { level: 24, title: "Lv.24 무한 롤링", badge: "노 브레이크", desc: "쉼표 없이 인워드와 리버스가 몰아치는 피지컬 훈련", baseBpm: 96, pattern: "RLLRLLRLLRLLRLRL" },
-    { level: 25, title: "Lv.25 화음 홀드 피니시", badge: "싱코페이션 마스터", desc: "오른손 롱노트 홀드와 인워드 피니시 결합", baseBpm: 100, pattern: "L(RR)L-R-R-LR-RLLR" },
+    { level: 24, title: "Lv.24 연속 트리플 연습", badge: "노 브레이크", desc: "쉼표 없이 인워드와 리버스가 몰아치는 피지컬 훈련", baseBpm: 96, pattern: "RLLRLLRLLRLLRLRL" },
+    { level: 25, title: "Lv.25 화음과 파라디들 조합", badge: "싱코페이션 마스터", desc: "오른손 롱노트 홀드와 인워드 피니시 결합", baseBpm: 100, pattern: "L(RR)L-R-R-LR-RLLR" },
 
-    { level: 26, title: "Lv.26 원코드 컴핑", badge: "소울 컴핑", desc: "1박 롱노트 베이스와 2·4박 백비트 쨉의 정석", baseBpm: 88, pattern: "(LL)L--R-R-R-LR-RL" },
+    { level: 26, title: "Lv.26 원코드 컴핑 리듬", badge: "소울 컴핑", desc: "1박 롱노트 베이스와 2·4박 백비트 쨉의 정석", baseBpm: 88, pattern: "(LL)L--R-R-R-LR-RL" },
     { level: 27, title: "Lv.27 톱니바퀴 그루브", badge: "오스티나토", desc: "왼손 리프와 오른손 화음이 맞물리는 인터락", baseBpm: 92, pattern: "L-RL-R-LL-RL-(RR)L" },
-    { level: 28, title: "Lv.28 주고받는 잼", badge: "콜 앤 리스폰스", desc: "클라베 모티브와 롤링 릭을 주고받는 즉흥 호흡", baseBpm: 95, pattern: "R-RLLRLLR-RLL(RR)L" },
-    { level: 29, title: "Lv.29 엇박 폭풍 쨉", badge: "하이퍼 펑크", desc: "정박을 비우고 16분 엇박 쨉을 쏟아붓는 고급 패턴", baseBpm: 98, pattern: "L-LR-R-R-RLRLRRL" },
-    { level: 30, title: "Lv.30 파이널 챌린지", badge: "최종 보스", desc: "인워드, 베이스 홀드, 정파라, 당김음의 총결합", baseBpm: 102, pattern: "RLLR(LL)RLRLRR-(RR)L" }
+    { level: 28, title: "Lv.28 왼손 오른손 주고받기", badge: "콜 앤 리스폰스", desc: "클라베 모티브와 롤링 릭을 주고받는 즉흥 호흡", baseBpm: 95, pattern: "R-RLLRLLR-RLL(RR)L" },
+    { level: 29, title: "Lv.29 엇박 마스터하기", badge: "하이퍼 펑크", desc: "정박을 비우고 16분 엇박 쨉을 쏟아붓는 고급 패턴", baseBpm: 98, pattern: "L-LR-R-R-RLRLRRL" },
+    { level: 30, title: "Lv.30 최종 챌린지", badge: "최종 보스", desc: "인워드, 베이스 홀드, 정파라, 당김음의 총결합", baseBpm: 102, pattern: "RLLR(LL)RLRLRR-(RR)L" }
   ];
+
+  const LEVEL_COUPONS = {
+    5: {
+      code: "FUNK5000",
+      title: "🎉 Lv.5 클리어 기념! 펑크 클래스 할인 쿠폰",
+      desc: "쿠폰을 복사한 뒤 아래 [강의 보기 →] 링크로 이동해 클래스 수강 시 사용하세요."
+    },
+    10: {
+      code: "FUNK10000",
+      title: "🏆 Lv.10 클리어 기념! 펑크 클래스 할인 쿠폰",
+      desc: "쿠폰을 복사한 뒤 아래 [강의 보기 →] 링크로 이동해 클래스 수강 시 사용하세요."
+    }
+  };
 
   function parsePatternBlocks(patStr, is8Step = false) {
     const blocks = [];
@@ -771,10 +854,11 @@
   let currentChapterIdx = 0;
   let currentLevelIdx = 0;
   let tempoMultiplier = 1.0;
+  let audioCtx = null;
   let bpm = 70;
 
-  let beatIntervalMs = (60 / bpm) * 1000;
-  let noteIntervalMs = beatIntervalMs / 2;
+  let beatInterval = 60 / bpm;
+  let noteInterval = beatInterval / 2;
 
   const TOTAL_BARS = 4;
   const COUNT_IN_BEATS = 4;
@@ -782,7 +866,8 @@
   let isRunning = false;
   let sessionStartTime = 0;
   let playStartTime = 0;
-  let lastFlachedBeat = -1;
+  let nextBeatTime = 0;
+  let scheduledBeats = 0;
   let targetNotes = [];
   let currentCombo = 0;
   let maxCombo = 0;
@@ -791,100 +876,10 @@
   let lastRank = "SSS";
 
   let activeHoldingNotes = { L: null, R: null };
-  let isListening = false;
-  let listenTimerId = null;
-  let listenStep = 0;
-  let nextListenTime = 0;
-
-  let connectedMidiDeviceNames = [];
-  let audioCtx = null;
-
-  function unlockAudioPipeline() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-  }
-
-  function playClick(time, isAccent) {
-    unlockAudioPipeline();
-    if (!audioCtx) return;
-    try {
-      const t = time || audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(isAccent ? 1200 : 650, t);
-      gain.gain.setValueAtTime(isAccent ? 0.95 : 0.65, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(t);
-      osc.stop(t + 0.045);
-    } catch(e) {}
-  }
-
-  function playKick(time) {
-    if (!audioCtx) return;
-    try {
-      const t = time || audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(140, t);
-      osc.frequency.exponentialRampToValueAtTime(36, t + 0.08);
-      gain.gain.setValueAtTime(0.95, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(t);
-      osc.stop(t + 0.19);
-    } catch(e) {}
-  }
-
-  function playSnare(time) {
-    if (!audioCtx) return;
-    try {
-      const t = time || audioCtx.currentTime;
-      const bufferSize = Math.floor(audioCtx.sampleRate * 0.13);
-      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = buffer;
-
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'highpass';
-      filter.frequency.setValueAtTime(900, t);
-
-      const noiseGain = audioCtx.createGain();
-      noiseGain.gain.setValueAtTime(0.55, t);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
-
-      noise.connect(filter);
-      filter.connect(noiseGain);
-      noiseGain.connect(audioCtx.destination);
-      noise.start(t);
-      noise.stop(t + 0.14);
-
-      const osc = audioCtx.createOscillator();
-      const oscGain = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(190, t);
-      osc.frequency.exponentialRampToValueAtTime(80, t + 0.05);
-      oscGain.gain.setValueAtTime(0.45, t);
-      oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
-
-      osc.connect(oscGain);
-      oscGain.connect(audioCtx.destination);
-      osc.start(t);
-      osc.stop(t + 0.08);
-    } catch(e) {}
-  }
+  let isDemoPlaying = false;
+  let demoTimerId = null;
+  let demoStep = 0;
+  let nextDemoNoteTime = 0;
 
   function getLevelStars(lvlNum) {
     return parseInt(localStorage.getItem(`groove_lv_${lvlNum}_stars`)) || 0;
@@ -912,8 +907,8 @@
   }
 
   function switchChapter(chapIdx) {
-    if (isRunning) stopSession();
-    stopPatternListen();
+    if (isRunning) return;
+    stopDemoPlay();
     currentChapterIdx = chapIdx;
     document.querySelectorAll('.chapter-tab').forEach((tab, i) => {
       tab.classList.toggle('active', i === chapIdx);
@@ -963,8 +958,8 @@
   }
 
   function selectLevel(idx) {
-    if (isRunning) stopSession();
-    stopPatternListen();
+    if (isRunning) return;
+    stopDemoPlay();
     currentLevelIdx = idx;
     currentChapterIdx = Math.floor(idx / 5);
 
@@ -987,8 +982,8 @@
   }
 
   function changeSpeed(delta) {
-    if (isRunning) stopSession();
-    stopPatternListen();
+    if (isRunning) return;
+    stopDemoPlay();
     tempoMultiplier = Math.round((tempoMultiplier + delta) * 100) / 100;
     if (tempoMultiplier < 0.5) tempoMultiplier = 0.5;
     if (tempoMultiplier > 1.5) tempoMultiplier = 1.5;
@@ -1003,10 +998,6 @@
 
     const isPractice = tempoMultiplier !== 1.0;
     document.getElementById('practiceBadge').style.display = isPractice ? 'inline-block' : 'none';
-
-    beatIntervalMs = (60 / bpm) * 1000;
-    const is8Step = (currentChapterIdx === 0);
-    noteIntervalMs = beatIntervalMs / (is8Step ? 2 : 4);
   }
 
   function buildStepGrid() {
@@ -1050,6 +1041,17 @@
     });
   }
 
+  async function unlockAudioPipeline() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') {
+      await audioCtx.resume();
+    }
+  }
+
+  ['touchstart', 'touchend', 'click'].forEach(evt => {
+    window.addEventListener(evt, () => unlockAudioPipeline(), { once: true, passive: true });
+  });
+
   function triggerBeatFlash(isAccent) {
     const frame = document.getElementById('mainDeviceFrame');
     if (!frame) return;
@@ -1060,122 +1062,199 @@
       : 'flash-normal 0.12s cubic-bezier(0, 0, 0.2, 1) forwards';
   }
 
-  function togglePatternListen() {
-    unlockAudioPipeline();
-    if (isRunning) stopSession();
-    if (isListening) {
-      stopPatternListen();
+  function playClick(time, isAccent) {
+    if (!audioCtx) return;
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(isAccent ? 1200 : 650, time);
+      gain.gain.setValueAtTime(isAccent ? 0.95 : 0.65, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(time);
+      osc.stop(time + 0.045);
+    } catch(e) {}
+  }
+
+  function playAcousticKick(time) {
+    if (!audioCtx) return;
+    try {
+      const t = time || audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(130, t);
+      osc.frequency.exponentialRampToValueAtTime(45, t + 0.07);
+      gain.gain.setValueAtTime(0.95, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.17);
+    } catch(e) {}
+  }
+
+  function playAcousticSnare(time) {
+    if (!audioCtx) return;
+    try {
+      const t = time || audioCtx.currentTime;
+      const bufferSize = Math.floor(audioCtx.sampleRate * 0.12);
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(1000, t);
+
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0.5, t);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
+
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      noise.start(t);
+      noise.stop(t + 0.12);
+
+      const osc = audioCtx.createOscillator();
+      const oscGain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(180, t);
+      osc.frequency.exponentialRampToValueAtTime(70, t + 0.04);
+      oscGain.gain.setValueAtTime(0.4, t);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+
+      osc.connect(oscGain);
+      oscGain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.07);
+    } catch(e) {}
+  }
+
+  async function toggleDemoPlay() {
+    await unlockAudioPipeline();
+    if (isRunning) return;
+
+    if (isDemoPlaying) {
+      stopDemoPlay();
     } else {
-      startPatternListen();
+      startDemoPlay();
     }
   }
 
-  function startPatternListen() {
-    isListening = true;
-    listenStep = 0;
+  function startDemoPlay() {
+    isDemoPlaying = true;
+    demoStep = 0;
     document.getElementById('demoPlayBtn').classList.add('playing');
     document.getElementById('demoIcon').textContent = '⏹';
     document.getElementById('demoText').textContent = '정지하기';
-    document.getElementById('sessionStatus').innerHTML = `<span style="color:var(--accent-orange)">🎧 패턴 들어보기 재생 중...</span>`;
+    document.getElementById('sessionStatus').innerHTML = `<span style="color:var(--accent-orange)">🎧 모범연주 재생 중...</span>`;
 
+    beatInterval = 60 / bpm;
     const is8Step = (currentChapterIdx === 0);
-    const noteIntervalSec = (60 / bpm) / (is8Step ? 2 : 4);
-    nextListenTime = audioCtx.currentTime + 0.05;
-    schedulePatternListen();
+    noteInterval = beatInterval / (is8Step ? 2 : 4);
+
+    nextDemoNoteTime = audioCtx.currentTime + 0.05;
+    scheduleDemoLoop();
   }
 
-  function schedulePatternListen() {
-    if (!isListening) return;
+  function scheduleDemoLoop() {
+    if (!isDemoPlaying) return;
 
     const currLevel = CURRICULUM[currentLevelIdx];
     const is8Step = (currentChapterIdx === 0);
     const blocks = parsePatternBlocks(currLevel.pattern, is8Step);
     const notesPerBar = is8Step ? 8 : 16;
-    const noteIntervalSec = (60 / bpm) / (is8Step ? 2 : 4);
 
-    while (nextListenTime < audioCtx.currentTime + 0.15) {
-      const activeIdx = listenStep % notesPerBar;
-      const scheduledTime = nextListenTime;
+    while (nextDemoNoteTime < audioCtx.currentTime + 0.15) {
+      const activeIdx = demoStep % notesPerBar;
+      const scheduledTime = nextDemoNoteTime;
+
+      const isBeat = (notesPerBar === 16) ? (activeIdx % 4 === 0) : (activeIdx % 2 === 0);
+      if (isBeat) {
+        const isAccent = (activeIdx === 0);
+        playClick(scheduledTime, isAccent);
+        const delayMs = Math.max(0, (scheduledTime - audioCtx.currentTime) * 1000);
+        setTimeout(() => { if (isDemoPlaying) triggerBeatFlash(isAccent); }, delayMs);
+      }
 
       const currentBlock = blocks.find(b => b.startStep === activeIdx);
       if (currentBlock && !currentBlock.isRest) {
         if (currentBlock.hand === 'L') {
-          playKick(scheduledTime);
-        } else if (currentBlock.hand === 'R') {
-          playSnare(scheduledTime);
+          playAcousticKick(scheduledTime);
+        } else {
+          playAcousticSnare(scheduledTime);
         }
       }
 
-      const isBeat = (notesPerBar === 16) ? (activeIdx % 4 === 0) : (activeIdx % 2 === 0);
-      const delayMs = Math.max(0, (scheduledTime - audioCtx.currentTime) * 1000);
+      const visualDelay = Math.max(0, (scheduledTime - audioCtx.currentTime) * 1000);
       setTimeout(() => {
-        if (!isListening) return;
-        if (isBeat) triggerBeatFlash(activeIdx === 0);
+        if (!isDemoPlaying) return;
         document.querySelectorAll('.step-node').forEach((node) => {
           const s = parseInt(node.dataset.start);
           const e = parseInt(node.dataset.end);
           node.classList.toggle('active', activeIdx >= s && activeIdx <= e);
         });
-      }, delayMs);
+      }, visualDelay);
 
-      nextListenTime += noteIntervalSec;
-      listenStep++;
+      nextDemoNoteTime += noteInterval;
+      demoStep++;
     }
 
-    listenTimerId = requestAnimationFrame(schedulePatternListen);
+    demoTimerId = requestAnimationFrame(scheduleDemoLoop);
   }
 
-  function stopPatternListen() {
-    isListening = false;
-    if (listenTimerId) cancelAnimationFrame(listenTimerId);
+  function stopDemoPlay() {
+    isDemoPlaying = false;
+    if (demoTimerId) cancelAnimationFrame(demoTimerId);
     document.getElementById('demoPlayBtn').classList.remove('playing');
-    document.getElementById('demoIcon').textContent = '🎧';
-    document.getElementById('demoText').textContent = '패턴 들어보기';
+    document.getElementById('demoIcon').textContent = '▶';
+    document.getElementById('demoText').textContent = '모범연주 듣기';
     document.getElementById('sessionStatus').textContent = "대기 중 (시작 버튼 클릭)";
     document.querySelectorAll('.step-node').forEach(node => node.classList.remove('active'));
   }
 
-  function stopSession() {
-    isRunning = false;
-    activeHoldingNotes = { L: null, R: null };
-    resetToMenu();
-  }
+  async function toggleSession() {
+    await unlockAudioPipeline();
+    stopDemoPlay();
+    if (isRunning) return;
 
-  function toggleSession() {
-    unlockAudioPipeline();
-    stopPatternListen();
-    if (isRunning) {
-      stopSession();
-      return;
-    }
-
+    beatInterval = 60 / bpm;
     const is8Step = (currentChapterIdx === 0);
     const currLevel = CURRICULUM[currentLevelIdx];
-    const notesPerBar = is8Step ? 8 : 16;
-    const blocks = parsePatternBlocks(currLevel.pattern, is8Step);
+    noteInterval = beatInterval / (is8Step ? 2 : 4);
 
     targetNotes = [];
+    scheduledBeats = 0;
     currentCombo = 0;
     maxCombo = 0;
-    lastFlachedBeat = -1;
     activeHoldingNotes = { L: null, R: null };
 
-    sessionStartTime = audioCtx.currentTime + 0.1;
-    playStartTime = sessionStartTime + (COUNT_IN_BEATS * (60 / bpm));
-    
-    const noteIntervalSec = (60 / bpm) / (is8Step ? 2 : 4);
+    const blocks = parsePatternBlocks(currLevel.pattern, is8Step);
+    const notesPerBar = is8Step ? 8 : 16;
+
+    sessionStartTime = audioCtx.currentTime + 0.15;
+    playStartTime = sessionStartTime + (COUNT_IN_BEATS * beatInterval);
+    nextBeatTime = sessionStartTime;
 
     for (let b = 0; b < TOTAL_BARS; b++) {
       blocks.forEach(block => {
         if (!block.isRest) {
           const stepIdx = (b * notesPerBar) + block.startStep;
-          const targetTimeSec = playStartTime + (stepIdx * noteIntervalSec);
+          const targetTime = playStartTime + (stepIdx * noteInterval);
 
           targetNotes.push({
             index: targetNotes.length,
             stepIndex: stepIdx,
             hand: block.hand,
-            targetTimeSec: targetTimeSec,
+            targetTime: targetTime,
             isLong: block.isLong,
             lenSteps: block.lenSteps,
             hit: false,
@@ -1191,37 +1270,40 @@
     document.getElementById('startBtn').style.display = 'none';
     document.getElementById('resultModal').style.display = 'none';
     document.getElementById('comboCounter').textContent = `0 COMBO`;
-    requestAnimationFrame(scheduler);
+    scheduler();
+  }
+
+  function getNoteHitWindow(note, standardHitWindow) {
+    if (note.index === 0) {
+      return Math.max(noteInterval * 1.45, 0.22);
+    }
+    if (note.index === 1) {
+      return Math.max(noteInterval * 1.10, 0.14);
+    }
+    return standardHitWindow;
   }
 
   function scheduler() {
-    if (!isRunning || !audioCtx) return;
-    const currentAudioTime = audioCtx.currentTime;
-    const noteIntervalSec = noteIntervalMs / 1000;
-    const standardHitWindowSec = noteIntervalSec * 0.70;
+    if (!isRunning) return;
+    const current = audioCtx.currentTime;
+    const standardHitWindow = noteInterval * 0.70;
 
-    while (lastFlachedBeat < (COUNT_IN_BEATS + TOTAL_BARS * 4) - 1) {
-      const nextBeatIndex = lastFlachedBeat + 1;
-      const beatTime = sessionStartTime + (nextBeatIndex * (60 / bpm));
-      
-      if (beatTime <= currentAudioTime + 0.1) {
-        lastFlachedBeat = nextBeatIndex;
-        const isAccent = (nextBeatIndex % 4 === 0);
-        playClick(beatTime, isAccent);
-        
-        const delayMs = Math.max(0, (beatTime - currentAudioTime) * 1000);
-        setTimeout(() => {
-          if (isRunning) triggerBeatFlash(isAccent);
-        }, delayMs);
-      } else {
-        break;
-      }
+    while (nextBeatTime < current + 0.15 && scheduledBeats < (COUNT_IN_BEATS + TOTAL_BARS * 4)) {
+      const isAccent = (scheduledBeats % 4 === 0);
+      const clickTime = nextBeatTime;
+      playClick(clickTime, isAccent);
+
+      const delayMs = Math.max(0, (clickTime - audioCtx.currentTime) * 1000);
+      setTimeout(() => { if (isRunning) triggerBeatFlash(isAccent); }, delayMs);
+
+      nextBeatTime += beatInterval;
+      scheduledBeats++;
     }
 
     targetNotes.forEach(note => {
       if (!note.judged) {
-        const customWindow = (note.index < 2) ? (noteIntervalSec * 0.95) : standardHitWindowSec;
-        if ((currentAudioTime - note.targetTimeSec) > customWindow) {
+        const customWindow = getNoteHitWindow(note, standardHitWindow);
+        if ((current - note.targetTime) > customWindow) {
           note.judged = true;
           note.offsetMs = 999;
           currentCombo = 0;
@@ -1232,46 +1314,28 @@
     });
 
     const is8Step = (currentChapterIdx === 0);
-    const totalSessionDuration = TOTAL_BARS * (is8Step ? 2 : 4) * (60 / bpm);
+    const totalSessionDuration = (TOTAL_BARS * (is8Step ? 8 : 16)) * noteInterval;
     const isAllJudged = targetNotes.every(n => n.judged);
-    const isTimeUp = currentAudioTime >= (playStartTime + totalSessionDuration + 0.1);
+    const isTimeUp = current >= (playStartTime + totalSessionDuration + 0.08);
 
     if (isAllJudged || isTimeUp) {
       finishSession();
       return;
     }
 
-    updateUIProgress(currentAudioTime);
+    updateUIProgress(current);
     requestAnimationFrame(scheduler);
   }
 
-  function triggerPadVisual(hand) {
-    const pad = document.getElementById(hand === 'L' ? 'padL' : 'padR');
-    if (pad) {
-      pad.classList.add('pad-pressed');
-      setTimeout(() => pad.classList.remove('pad-pressed'), 90);
-    }
-  }
-
-  // --- [수정 완료] 입력 처리 및 G2 / G#2 음역대 엄격 매핑 검증 ---
-  function handleInput(hand, clientX, clientY, isMidi = false, rawNote = null) {
+  function handleInput(hand, clientX, clientY, isMidi = false) {
     createRipple(hand, clientX, clientY);
-    triggerPadVisual(hand);
+    if (!isRunning || !audioCtx) return;
 
-    if (!isRunning || !audioCtx) {
-      updateFeedback(`🎹 [${hand}] 타건 감지`, hand === 'L' ? 'var(--accent-left)' : 'var(--accent-right)');
-      return;
-    }
-
-    let targetHand = hand;
-    if (isMidi && rawNote !== null) {
-      // G2(노트 43) 이하는 왼손(L), G#2(노트 44) 이상은 오른손(R)
-      targetHand = (rawNote <= 43) ? 'L' : 'R';
-    }
-
-    const currentAudioTime = audioCtx.currentTime;
-    const noteIntervalSec = noteIntervalMs / 1000;
-    const standardHitWindowSec = noteIntervalSec * 0.70;
+    const midiOffset = isMidi ? 0.028 : 0.0;
+    const current = audioCtx.currentTime - midiOffset;
+    const standardHitWindow = noteInterval * 0.70;
+    const firstNote = targetNotes.length > 0 ? targetNotes[0] : null;
+    const firstNoteWindow = firstNote ? getNoteHitWindow(firstNote, standardHitWindow) : standardHitWindow;
 
     let closest = null;
     let minDiff = Infinity;
@@ -1280,10 +1344,15 @@
       const note = targetNotes[i];
       if (note.judged) continue;
 
-      const diff = currentAudioTime - note.targetTimeMs;
-      const customWindow = (note.index < 2) ? (noteIntervalSec * 0.95) : standardHitWindowSec;
+      const customWindow = getNoteHitWindow(note, standardHitWindow);
+      const diff = current - note.targetTime;
 
       if (Math.abs(diff) <= customWindow) {
+        if (i === 0 && note.hand === hand && Math.abs(diff) <= firstNoteWindow) {
+          closest = note;
+          minDiff = diff;
+          break;
+        }
         if (Math.abs(diff) < Math.abs(minDiff)) {
           minDiff = diff;
           closest = note;
@@ -1291,11 +1360,21 @@
       }
     }
 
-    if (!closest) return;
+    if (!closest) {
+      if (firstNote && !firstNote.judged && current < firstNote.targetTime) {
+        return;
+      }
+      if (current >= playStartTime + firstNoteWindow * 0.6) {
+        updateFeedback("MISS (박자 이탈)", "var(--accent-miss)");
+        currentCombo = 0;
+        document.getElementById('comboCounter').textContent = `0 COMBO`;
+      }
+      return;
+    }
 
     closest.judged = true;
 
-    if (closest.hand !== targetHand) {
+    if (closest.hand !== hand) {
       closest.offsetMs = 999;
       currentCombo = 0;
       updateFeedback("WRONG HAND!", "var(--accent-miss)");
@@ -1307,13 +1386,13 @@
     closest.offsetMs = diffMs;
     const absMs = Math.abs(diffMs);
 
-    const syncPercent = Math.max(55, Math.min(100, Math.round(100 - (absMs * 0.22))));
+    const syncPercent = Math.max(55, Math.min(100, Math.round(100 - (absMs * 0.20))));
 
     if (closest.isLong) {
-      activeHoldingNotes[targetHand] = {
+      activeHoldingNotes[hand] = {
         note: closest,
-        pressTime: currentAudioTime,
-        targetDurationSec: closest.lenSteps * noteIntervalSec
+        pressTime: current,
+        targetDuration: closest.lenSteps * noteInterval
       };
     }
 
@@ -1335,17 +1414,17 @@
 
   function handleRelease(hand) {
     if (!isRunning || !audioCtx) return;
-    const currentAudioTime = audioCtx.currentTime;
+    const current = audioCtx.currentTime;
     const holding = activeHoldingNotes[hand];
 
     if (holding && holding.note) {
-      const heldTime = currentAudioTime - holding.pressTime;
-      const targetDuration = holding.targetDurationSec;
+      const heldTime = current - holding.pressTime;
+      const targetDuration = holding.targetDuration;
 
       if (heldTime < targetDuration * 0.50) {
         holding.note.releaseErr = 'early';
         updateFeedback("SHORT RELEASE! (조금 더 유지해보세요)", "var(--accent-orange)");
-      } else if (heldTime > targetDuration + (noteIntervalMs / 1000) * 0.85) {
+      } else if (heldTime > targetDuration + noteInterval * 0.85) {
         holding.note.releaseErr = 'late';
         updateFeedback("LATE RELEASE! (다음 박 전에 떼어보세요)", "var(--accent-orange)");
       }
@@ -1355,30 +1434,26 @@
 
   function updateFeedback(text, color) {
     const el = document.getElementById('feedbackText');
-    if (el) {
-      el.innerHTML = text;
-      el.style.color = color || "var(--text-primary)";
-    }
+    el.textContent = text;
+    el.style.color = color;
   }
 
-  function updateUIProgress(currentAudioTime) {
+  function updateUIProgress(current) {
     const is8Step = (currentChapterIdx === 0);
     const totalSteps = is8Step ? 8 : 16;
-    const noteIntervalSec = noteIntervalMs / 1000;
-    const beatIntervalSec = (60 / bpm);
 
-    if (currentAudioTime < playStartTime) {
-      if (currentAudioTime < sessionStartTime) {
-        document.getElementById('sessionStatus').innerHTML = `<span style="color:var(--accent-orange)">준비 중...</span>`;
+    if (current < playStartTime) {
+      if (current < sessionStartTime) {
+        document.getElementById('sessionStatus').innerHTML = `<span style="color:var(--accent-orange)">카운트다운 준비 중...</span>`;
       } else {
-        const count = Math.floor((currentAudioTime - sessionStartTime) / beatIntervalSec) + 1;
+        const count = Math.floor((current - sessionStartTime) / beatInterval) + 1;
         const displayCount = Math.min(COUNT_IN_BEATS, Math.max(1, count));
         document.getElementById('sessionStatus').innerHTML = `<span style="color:var(--accent-orange)">예비박 카운트: <b>${displayCount} / ${COUNT_IN_BEATS}</b></span>`;
       }
     } else {
-      const elapsed = currentAudioTime - playStartTime;
-      const currentStep = Math.floor(elapsed / noteIntervalSec);
-      const currentBar = Math.min(TOTAL_BARS, Math.floor(elapsed / (4 * beatIntervalSec)) + 1);
+      const elapsed = current - playStartTime;
+      const currentStep = Math.floor(elapsed / noteInterval);
+      const currentBar = Math.min(TOTAL_BARS, Math.floor(elapsed / (4 * beatInterval)) + 1);
       const subName = is8Step ? "8비트" : "16비트";
       document.getElementById('sessionStatus').innerHTML = `<span style="color:var(--accent-right)">🔥 ${subName} 연주 중 [ <b>${currentBar} / ${TOTAL_BARS} 마디</b> ]</span>`;
 
@@ -1425,6 +1500,62 @@
     if (meanOffset < -22) return "⏩ 전체적으로 앞서갑니다! (메트로놈 클릭을 끝까지 듣고 타건해보세요)";
     if (meanOffset > 22) return "⏸️ 전체적으로 살짝 늦어요! (조금 더 과감하게 앞박을 찔러보세요)";
     return "✨ 아주 좋아요! 안정적인 그루브 포켓을 유지했습니다.";
+  }
+
+  function updateCouponBox(lvlNum, isCleared, isPractice) {
+    const couponBox = document.getElementById('couponBox');
+    const copyBtn = document.getElementById('copyCouponBtn');
+    if (!couponBox) return;
+
+    const reward = LEVEL_COUPONS[lvlNum];
+    if (!isPractice && isCleared && reward) {
+      document.getElementById('couponTitle').textContent = reward.title;
+      document.getElementById('couponCodeText').textContent = reward.code;
+      document.getElementById('couponDesc').textContent = reward.desc;
+      if (copyBtn) {
+        copyBtn.textContent = "쿠폰 복사";
+      }
+      couponBox.style.display = 'flex';
+    } else {
+      couponBox.style.display = 'none';
+    }
+  }
+
+  function copyRewardCoupon() {
+    const codeEl = document.getElementById('couponCodeText');
+    const copyBtn = document.getElementById('copyCouponBtn');
+    if (!codeEl) return;
+    const code = codeEl.textContent.trim();
+
+    const onCopied = () => {
+      if (copyBtn) {
+        copyBtn.textContent = "복사됨!";
+        setTimeout(() => {
+          copyBtn.textContent = "쿠폰 복사";
+        }, 1800);
+      }
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(onCopied).catch(() => {
+        fallbackCopyText(code, onCopied);
+      });
+    } else {
+      fallbackCopyText(code, onCopied);
+    }
+  }
+
+  function fallbackCopyText(text, callback) {
+    const tempInput = document.createElement('input');
+    tempInput.value = text;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    tempInput.setSelectionRange(0, 99999);
+    try {
+      document.execCommand('copy');
+    } catch (e) {}
+    document.body.removeChild(tempInput);
+    if (callback) callback();
   }
 
   function finishSession() {
@@ -1478,6 +1609,7 @@
     document.getElementById('resultAcc').innerHTML = `<b>평균 싱크율 ${acc.toFixed(1)}%</b> (${totalSessionNotes}타 • 최대 ${maxCombo} COMBO)`;
 
     document.getElementById('diagnosisText').textContent = evaluatePerformance(validHits, acc, rank);
+    updateCouponBox(currLvlNum, stars > 0, isPractice);
 
     const dawRoll = document.getElementById('dawRoll');
     dawRoll.querySelectorAll('.dot').forEach(d => d.remove());
@@ -1517,15 +1649,11 @@
 
   function resetToMenu() {
     document.getElementById('resultModal').style.display = 'none';
+    document.getElementById('couponBox').style.display = 'none';
     document.getElementById('startBtn').style.display = 'flex';
     document.getElementById('sessionStatus').textContent = "대기 중 (시작 버튼 클릭)";
-    
-    if (connectedMidiDeviceNames.length > 0) {
-      updateFeedback(`🎹 <span style="color:var(--accent-right)">MIDI 연결됨: ${connectedMidiDeviceNames[0]}</span> (~G2:L / G#2~:R)`);
-    } else {
-      updateFeedback("준비 완료 (마스터건반 ~G2:L / G#2~:R)");
-    }
-    
+    document.getElementById('feedbackText').textContent = "준비 완료 (마스터건반 ~G2:L / G#2~:R)";
+    document.getElementById('feedbackText').style.color = "var(--text-primary)";
     document.querySelectorAll('.step-node').forEach(n => n.classList.remove('active'));
   }
 
@@ -1754,7 +1882,7 @@
     if (e.code === 'Space') {
       e.preventDefault();
       unlockAudioPipeline();
-      toggleSession();
+      if (!isRunning) toggleSession();
     }
     if (['KeyA', 'KeyS', 'KeyD', 'ArrowLeft'].includes(e.code)) {
       unlockAudioPipeline();
@@ -1775,76 +1903,53 @@
     }
   });
 
-  // --- 초고속 Web MIDI 수신 엔진 ---
-  let persistentMidiAccess = null;
-  let persistentMidiInputs = [];
+  // --- Web MIDI 엔진 (G2/G#2 스플릿 보장) ---
   let lastMidiAttackTime = { L: 0, R: 0 };
   const CHORD_DEBOUNCE_MS = 35;
 
+  function getHandFromMIDINote(note) {
+    if (note <= 43) return 'L';
+    if (note >= 44) return 'R';
+    return null;
+  }
+
   function handleMIDIMessage(event) {
-    if (!event || !event.data || event.data.length < 2) return;
-    const status = event.data[0];
-    const note = event.data[1];
-    const velocity = event.data.length > 2 ? event.data[2] : 0;
+    const [status, note, velocity] = event.data;
+    const command = status >> 4;
+    const hand = getHandFromMIDINote(note);
+    if (!hand) return;
 
-    const command = status & 0xF0;
-
-    if (command === 0x90 && velocity > 0) {
+    if (command === 9 && velocity > 0) {
       unlockAudioPipeline();
       const now = performance.now();
-      
-      // G2(노트 43) 이하는 왼손(L), G#2(노트 44) 이상은 오른손(R)
-      const hand = (note <= 43) ? 'L' : 'R';
-
       if (now - lastMidiAttackTime[hand] < CHORD_DEBOUNCE_MS) {
         return;
       }
       lastMidiAttackTime[hand] = now;
-      handleInput(hand, null, null, true, note);
-    } 
-    else if (command === 0x80 || (command === 0x90 && velocity === 0)) {
-      handleRelease('L');
-      handleRelease('R');
-    }
-  }
-
-  function refreshMidiPorts() {
-    if (!persistentMidiAccess) return;
-    connectedMidiDeviceNames = [];
-    persistentMidiInputs = [];
-
-    for (let input of persistentMidiAccess.inputs.values()) {
-      persistentMidiInputs.push(input);
-      connectedMidiDeviceNames.push(input.name || "MIDI 건반");
-
-      input.onmidimessage = handleMIDIMessage;
-      try {
-        input.removeEventListener('midimessage', handleMIDIMessage);
-        input.addEventListener('midimessage', handleMIDIMessage);
-      } catch (e) {}
-    }
-
-    if (!isRunning) {
-      resetToMenu();
+      handleInput(hand, null, null, true);
+    } else if (command === 8 || (command === 9 && velocity === 0)) {
+      handleRelease(hand);
     }
   }
 
   function initMIDI() {
-    if (!navigator.requestMIDIAccess) return;
-
-    navigator.requestMIDIAccess({ sysex: false }).then(
-      (midiAccess) => {
-        persistentMidiAccess = midiAccess;
-        refreshMidiPorts();
-
-        midiAccess.onstatechange = (e) => {
-          if (e.port && e.port.type === 'input') {
-            refreshMidiPorts();
+    if (navigator.requestMIDIAccess) {
+      navigator.requestMIDIAccess().then(
+        (midiAccess) => {
+          for (let input of midiAccess.inputs.values()) {
+            input.onmidimessage = handleMIDIMessage;
           }
-        };
-      },
-      () => {}
-    );
+          midiAccess.onstatechange = (e) => {
+            if (e.port && e.port.type === 'input' && e.port.state === 'connected') {
+              e.port.onmidimessage = handleMIDIMessage;
+            }
+          };
+        },
+        () => {
+          console.log("MIDI 접근이 거부되었거나 지원되지 않습니다.");
+        }
+      );
+    }
   }
 
   window.addEventListener('load', () => {
