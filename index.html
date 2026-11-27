@@ -1078,7 +1078,6 @@
     } catch(e) {}
   }
 
-  // --- 어쿠스틱 킷 음색 (모범연주 킥 & 스네어) ---
   function playAcousticKick(time) {
     if (!audioCtx) return;
     try {
@@ -1274,6 +1273,16 @@
     scheduler();
   }
 
+  function getNoteHitWindow(note, standardHitWindow) {
+    if (note.index === 0) {
+      return Math.max(noteInterval * 1.15, 0.16);
+    }
+    if (note.index === 1) {
+      return noteInterval * 0.95;
+    }
+    return standardHitWindow;
+  }
+
   function scheduler() {
     if (!isRunning) return;
     const current = audioCtx.currentTime;
@@ -1293,7 +1302,7 @@
 
     targetNotes.forEach(note => {
       if (!note.judged) {
-        const customWindow = (note.index < 2) ? (noteInterval * 0.95) : standardHitWindow;
+        const customWindow = getNoteHitWindow(note, standardHitWindow);
         if ((current - note.targetTime) > customWindow) {
           note.judged = true;
           note.offsetMs = 999;
@@ -1325,6 +1334,7 @@
     const midiOffset = isMidi ? 0.028 : 0.0;
     const current = audioCtx.currentTime - midiOffset;
     const standardHitWindow = noteInterval * 0.70;
+    const firstNoteWindow = targetNotes.length > 0 ? getNoteHitWindow(targetNotes[0], standardHitWindow) : standardHitWindow;
 
     let closest = null;
     let minDiff = Infinity;
@@ -1333,7 +1343,7 @@
       const note = targetNotes[i];
       if (note.judged) continue;
 
-      const customWindow = (note.index < 2) ? (noteInterval * 0.95) : standardHitWindow;
+      const customWindow = getNoteHitWindow(note, standardHitWindow);
       const diff = current - note.targetTime;
 
       if (Math.abs(diff) <= customWindow) {
@@ -1345,7 +1355,7 @@
     }
 
     if (!closest) {
-      if (current >= playStartTime - standardHitWindow) {
+      if (current >= playStartTime + firstNoteWindow * 0.35) {
         updateFeedback("MISS (박자 이탈)", "var(--accent-miss)");
         currentCombo = 0;
         document.getElementById('comboCounter').textContent = `0 COMBO`;
